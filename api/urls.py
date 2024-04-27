@@ -18,4 +18,5 @@ urlpatterns = [
     path("createStudentProgile/", views.createStudentProfile, name='createStudentProfile'),
     path("studentLogin/", views.studentLogin, name='studentLogin'),
     path("editStudent/", views.editStudent, name='editStudent'),
+    path("passOutTick/", views.passOutTick, name='passOutTick'),
 ]

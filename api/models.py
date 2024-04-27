@@ -135,6 +135,7 @@ class Student(models.Model):
     cpi = models.IntegerField(null=True, blank=True, default=0)
     fees_paid = models.IntegerField(null=True, blank=True, default=0)
     activity = models.JSONField(default={})
+    passed_out = models.BooleanField(default=False)
     project = models.JSONField(default={})
     membership_in_organization = models.JSONField(default={})
     fees_unpaid = models.IntegerField(default=60000)

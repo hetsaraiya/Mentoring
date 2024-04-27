@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from jsonschema import ValidationError
@@ -257,14 +258,13 @@ def signin(request):
       if request.method == 'POST':
         username = request.POST['username']
         pass1 = request.POST['pass1']
-        user = request.POST['usertype']
         
-        user = authenticate(username=username, password=pass1, user_type=user)
+        user = authenticate(username=username, password=pass1)
         
         if user is not None:
             login(request, user)
             fname = user.first_name
-            return HttpResponse(json.dumps({"msg": " Sucessfully Logged In ","status":True}),content_type="application/json",)
+            return HttpResponse(json.dumps({"msg": " Sucessfully Logged In ","status":True, "user_type" : user.user_type}),content_type="application/json",)
             messages.success(request, "Logged In Sucessfully!!")
             
         else:
@@ -464,16 +464,23 @@ def editStudent(request):
             student_instance = Student.objects.get(enrollment=enrollment)
         except Student.DoesNotExist:
             return JsonResponse({"msg": "Student does not exist"}, status=404)
-
-        # Access JSON data directly from request.POST
-        data = json.loads(request.POST.get("data"))  # Assuming the JSON data is sent as "data" parameter
-
-        # Update fields based on the received data
+        data = json.loads(request.POST.get("data"))
         for field, value in data.items():
             setattr(student_instance, field, value)
-
-        # Save the updated instance
         student_instance.save()
         return HttpResponse(json.dumps({"msg": "Success"}))
     else:
         return HttpResponse(json.dumps({"msg": "Bad request"}))
+
+@csrf_exempt
+def passOutTick(request):
+    students = Student.objects.all()
+    current_year = datetime.datetime.now().year
+    
+    for student in students:
+        nums = student.department.number_of_semesters / 2
+        student.mentoring_started_year.year + nums >= current_year
+        student.passed_out = True
+        student.save()
+    return HttpResponse(json.dumps({'success': 'True'}))
+    
